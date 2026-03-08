@@ -1,0 +1,29 @@
+# Database
+content.db
+
+# Auth cookies
+auth/
+*.cookies.json
+
+# Generated output
+output/
+
+# Drafts (user content)
+studio/drafts/*.md
+
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
