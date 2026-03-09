@@ -66,6 +66,15 @@ bash setup.sh
 /setup
 
 # 3. 导入你最好的几篇文章作为声音参考
+> ⚠️ 注意：导入的 .md 文件头部必须包含以下格式的元数据（Frontmatter），否则会报错：
+> ```yaml
+> ---
+> id: "essay-001"
+> tags: ["散文", "记忆"]
+> title_zh: "文章标题"
+> description_zh: "一句话简介"
+> ---
+> ```
 python3 pipeline/scripts/rag_essays.py insert --md-file path/to/essay.md
 python3 pipeline/scripts/rag_essays.py build-index
 
