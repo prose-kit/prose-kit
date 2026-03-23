@@ -109,7 +109,7 @@ node studio/reader/server.cjs
 - **7 篇深度文档** — 快速上手、风格配置、RAG 原理、评分体系、种子系统、发布扩展、FAQ
 - **示范数据库** — 50+ 篇实战散文，开箱即用的声音参考
 
-微信搜索公众号「链上漂流」购买。
+👉 [prose-kit.com/buy](https://prose-kit.com/buy)
 
 ## 协议
 
