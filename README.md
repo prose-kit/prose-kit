@@ -1,18 +1,29 @@
-# Prose Kit
+<p align="center">
+  <img src="assets/hero.png" alt="Prose Kit" width="800">
+</p>
 
-两个月，84 篇散文，294 次评分。73 篇发了知乎，80 篇发了微信公众号。
+<p align="center">
+  <strong>一个主题，九种写法。</strong><br>
+  Claude Code 驱动的中文散文生成系统。给一个主题，出 9 篇风格各异的草稿。
+</p>
 
-这是一个用 Claude Code 驱动的中文散文生成系统。给一个主题，出 9 篇不同的草稿。不是那种"AI味儿"的东西——每篇用不同的种子起点，通过 RAG 从你自己的文章库里校准声音。
+<p align="center">
+  <a href="#快速上手">快速上手</a> ·
+  <a href="#工作原理">工作原理</a> ·
+  <a href="https://prose-kit.com/buy">完整版</a>
+</p>
 
-下面是一段生成的散文结尾（主题：龙）：
+---
+
+### 生成效果
+
+主题：**龙**
 
 > 那天晚上，我做了一个梦。
 >
 > 梦见我爷爷。他十七岁，站在村口，背着一个包袱，准备走。
 >
-> 我在旁边看着他。
->
-> 他看见我了。他问：你是谁？
+> 我在旁边看着他。他看见我了。他问：你是谁？
 >
 > 我说：我是你孙子。
 >
@@ -30,43 +41,53 @@
 >
 > 我喊：你自己也可能变成龙。
 >
-> 他停下来了。
->
-> 他转过头，看着我。
+> 他停下来了。他转过头，看着我。
 >
 > 他说：那就让人来杀我。
 >
 > 然后他走了。
 
-## 工作原理
+这是 9 篇草稿中的一篇。同一个主题，另外 8 篇从完全不同的角度起笔。
+
+---
+
+### 工作原理
 
 ```
-主题 → 9 个种子（不同类型的起点）
-              ↓
-       RAG 检索（从你的语料库校准声音）
-              ↓
-   第 1 轮：3 个 agent → 3 篇草稿
-   第 2 轮：3 个 agent → 3 篇草稿（避坑）
-   第 3 轮：3 个 agent → 3 篇草稿（累积避坑）
-              ↓
-       9 篇草稿 → 挑最好的
+/write-essay 龙
+      │
+      ▼
+  9 个种子（私人记忆 / 跨学科现象 / 问题 / 场景 / 第一句话）
+      │
+      ├── 第 1 轮：3 个 agent → 3 篇草稿
+      ├── 第 2 轮：3 个 agent → 3 篇草稿（避开第 1 轮的隐喻和结构）
+      └── 第 3 轮：3 个 agent → 3 篇草稿（累积避坑）
+      │
+      ▼
+  9 篇草稿 → 浏览器阅读 → 挑最好的
 ```
 
-每轮的 3 个 agent 用不同类型的种子起笔——私人记忆、跨学科现象、问题、场景、第一句话。轮次之间传递"避坑清单"，防止隐喻和结构撞车。
+每轮的 3 个 agent 用不同类型的种子起笔。轮次之间传递"避坑清单"，防止隐喻和结构撞车。
 
-RAG 系统从你导入的文章库里检索风格最接近的参考文，让 agent 校准语感。
+RAG 系统从你导入的文章库里检索风格最接近的参考文，让 agent 校准语感——写出来的是**你的声音**，不是 AI 的声音。
 
-## 快速上手
+---
+
+### 快速上手
 
 ```bash
-# 1. 安装依赖
+# 安装依赖
 bash setup.sh
 
-# 2. 配置你的写作声音（在 Claude Code 里）
+# 配置你的写作声音（在 Claude Code 里）
 /setup
 
-# 3. 导入你最好的几篇文章作为声音参考
-> ⚠️ 注意：导入的 .md 文件头部必须包含以下格式的元数据（Frontmatter），否则会报错：
+# 导入你最好的几篇文章作为声音参考
+python3 pipeline/scripts/rag_essays.py insert --md-file path/to/essay.md
+python3 pipeline/scripts/rag_essays.py build-index
+```
+
+> ⚠️ 导入的 `.md` 文件头部需要 frontmatter：
 > ```yaml
 > ---
 > id: "essay-001"
@@ -75,42 +96,54 @@ bash setup.sh
 > description_zh: "一句话简介"
 > ---
 > ```
-python3 pipeline/scripts/rag_essays.py insert --md-file path/to/essay.md
-python3 pipeline/scripts/rag_essays.py build-index
 
-# 4. 开始生成（在 Claude Code 里）
+```bash
+# 开始生成
 /write-essay 关于记忆的重量
 
-# 5. 浏览器阅读草稿
+# 浏览器阅读草稿
 node studio/reader/server.cjs
 # 打开 http://localhost:3749
 ```
 
-## 包含什么
+---
 
-- `/write-essay` — 3 轮 × 3 并行 agent，9 篇不同角度的草稿
-- `/setup` — 交互式声音配置，定义你的叙述者身份
-- RAG 声音校准 — 语义检索 + 标签匹配（Ollama + nomic-embed-text）
-- 草稿阅读器 — 浏览器里看草稿、编辑、收藏、入库
+### 包含什么
 
-## 环境要求
+| 功能 | 说明 |
+|------|------|
+| `/write-essay` | 3 轮 × 3 并行 agent，9 篇不同角度的草稿 |
+| `/setup` | 交互式声音配置，定义你的叙述者身份 |
+| RAG 声音校准 | 语义检索 + 标签匹配（Ollama + nomic-embed-text） |
+| Draft Reader | 浏览器里看草稿、编辑、收藏、入库 |
+
+---
+
+### 完整版
+
+开源版已经能生成和阅读。完整版多了评分、发布和语料库：
+
+| | 开源版 | Pro |
+|---|:---:|:---:|
+| 9 篇生成（3 轮 × 3） | ✅ | ✅ |
+| RAG 声音校准 | ✅ | ✅ |
+| Draft Reader | ✅ | ✅ |
+| 自动评分（5 维度排名） | | ✅ |
+| 完整世界观设定 | | ✅ |
+| 100 篇实战散文语料 | | ✅ |
+| 知乎/微信/小红书一键发布 | | ✅ |
+
+👉 [prose-kit.com/buy](https://prose-kit.com/buy)
+
+---
+
+### 环境要求
 
 - Python 3.8+
 - Node.js 18+
-- [Ollama](https://ollama.ai) + `nomic-embed-text` 模型
+- [Ollama](https://ollama.ai) + `nomic-embed-text`
 - [Claude Code](https://claude.ai/claude-code) CLI
 
-## 完整版（¥299）
-
-完整版 Prose Kit 在开源版基础上增加：
-
-- **自动评分系统** — 5 维度（在场、不可预测、节奏、纵深、余味），每篇自动打分排名，不用自己一篇篇读
-- **发布自动化** — 一键发到知乎、微信公众号、小红书，支持定时批量发布
-- **7 篇深度文档** — 快速上手、风格配置、RAG 原理、评分体系、种子系统、发布扩展、FAQ
-- **示范数据库** — 50+ 篇实战散文，开箱即用的声音参考
-
-👉 [prose-kit.com/buy](https://prose-kit.com/buy)　｜　微信搜索公众号「链上漂流」
-
-## 协议
+### 协议
 
 MIT
